@@ -221,170 +221,6 @@ operation_info<student_info>* user_select(const char* uuid, const int mode)
 /**
  * **************************************************
  *
- * @brief Update user information table fields according to criteria
- *
- * @param key_mode (const int) Keyword search mode, search by user name =1, search by student number =2
- *
- * @param key (const char*) keyword
- *
- * @param update_mode (const int) The mode to be updated, from 0 to 6, corresponds to 7 fields of the storage account information table
- *
- * @param update_value (const char*) Updated content
- *
- * @return Status Code (int) Status Code
- *
- * @retval 1 Update operation successful
- *
- * @retval 0 Cannot find data by keyword
- *
- * @retval -1 A character containing a non-numeric type was passed when modifying a numeric class value
- *
- * @retval -2 The value of the passed mode is unknown
- *
- * @retval -3 An exception occurred while reading the file
- *
- * @retval -4 An exception occurred while the file was being stored
- *
- * @retval -5 Unable to write because the update exists or does not exist
- *
- * **************************************************
- */
-int user_update(const int key_mode, const char* key, const int update_mode, const char* update_value)
-{
-	int status_code = 1;
-	
-	auto* operation = new operation_info<student_info>;
-	switch (key_mode)
-	{
-	case 1:
-		free_ptr(operation);
-		operation = user_select(key, 1);
-		break;
-	case 2:
-		free_ptr(operation);
-		operation = user_select(key, 2);
-		break;
-	default:
-		free_ptr(operation);
-		return -2;
-	}
-
-	if (!operation->info_flag)
-	{
-		free_ptr(operation);
-		return 0;
-	}
-
-	char* tmp = new char[strlen(update_value) + 1];
-	strcpy_s(tmp, strlen(update_value) + 1, update_value);
-
-	for (unsigned int i = 0; i < operation->info_vector_class.size() && 1 == status_code; i++)
-	{
-		bool flag_find_mode = false;
-		flag_find_mode |= 1 == key_mode && 0 == strcmp(operation->info_vector_class[i].user_id, key);
-		flag_find_mode |= 2 == key_mode && 0 == strcmp(operation->info_vector_class[i].id, key);
-		if (flag_find_mode)
-		{
-			switch (update_mode)
-			{
-			case 0: // User Name
-				if (user_select(tmp, 1)->info_flag)
-				{
-					status_code = -5;
-					break;
-				}
-				operation->info_vector_class[i].user_id = tmp;
-				break;
-			case 1: // User Password
-				operation->info_vector_class[i].user_password = tmp;
-				break;
-			case 2: // User Privilege
-				if (0 != strcmp("2", tmp) && 0 != strcmp("1", tmp) && 0 != strcmp("0", tmp))
-				{
-					status_code = -1;
-					break;
-				}
-				operation->info_vector_class[i].user_privilege = strtol(tmp, nullptr, 0L);
-				break;
-			case 3: // Name
-				operation->info_vector_class[i].name = tmp;
-				break;
-			case 4: // Student ID
-				if (!std::regex_match(tmp, std::regex("^[0-9]\\d*$")))
-				{
-					status_code = -1;
-					break;
-				}
-				if (user_select(tmp, 2)->info_flag)
-				{
-					status_code = -5;
-					break;
-				}
-				operation->info_vector_class[i].id = tmp;
-				break;
-			case 5: // Class ID
-				if (!std::regex_match(tmp, std::regex("^[0-9]\\d*$")))
-				{
-					status_code = -1;
-					break;
-				}
-				if (class_select(tmp))
-				{
-					status_code = -5;
-					break;
-				}
-				operation->info_vector_class[i].class_id = tmp;
-				break;
-			case 6: // Gender
-				if (0 != strcmp("1", tmp) && 0 != strcmp("0", tmp))
-				{
-					status_code = -1;
-					break;
-				}
-				operation->info_vector_class[i].user_privilege = strtol(tmp, nullptr, 0L);
-				break;
-			default:
-				status_code = -2;
-				break;
-			}
-		}
-	}
-
-	if (1 == status_code)
-	{
-		std::fstream f;
-		try
-		{
-			f.open(operation->info_path, std::ios::out | std::ios::trunc | std::ios::binary);
-		}
-		catch (...)
-		{
-			free_ptr(operation);
-			free_ptr(tmp, true);
-			return -3;
-		}
-		if (!f.is_open())
-		{
-			free_ptr(operation);
-			free_ptr(tmp, true);
-			return -3;
-		}
-		if (!user_store(operation->info_vector_class, const_cast<const char*>(operation->info_path)))
-		{
-			status_code = -4;
-		}
-		f.close();
-	}
-	
-	free_ptr(tmp, true);
-	free_ptr(operation);
-	return status_code;
-}
-
-
-/**
- * **************************************************
- *
  * @brief store account information
  *
  * @param student (const student_info*) class pointer of student_info
@@ -519,16 +355,9 @@ operation_info<student_info>* user_delete(operation_info<student_info>* operatio
 		}
 		f.close();
 		f.open(operation->info_path, std::ios::out | std::ios::trunc | std::ios::binary);
-		for (auto tmp : tmp_vector_line)
+		for (const auto& tmp : tmp_vector_line)
 		{
-			int index = static_cast<int>(tmp.length()) - 1;
-			while ((tmp[index] == '\r' || tmp[index] == '\n') && 0 < index)
-			{
-				tmp[index] = '\0';
-				index--;
-			}
-			
-			f << tmp << "\n";
+			f << tmp << "\r\n";
 		}
 		f.close();
 		operation->info_flag = true;
@@ -1132,7 +961,7 @@ operation_info<exam_info*>* exam_select(const char* student_id, char* datetime_s
  *
  * **************************************************
  */
-operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, char* student_id, char* subject_name,const double new_score)
+operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, char* student_id, char* subject_name, double new_score)
 {
 	operation->info_flag = false;
 
@@ -1226,7 +1055,7 @@ operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, c
 bool exam_store(const exam_info* info, char* path)
 {
 	std::fstream f;
-	std::string tmp_path = PATH_FOLDER_RECORD"exam_*****.csv";
+	char tmp_path[] = PATH_FOLDER_RECORD"exam_0.csv";
 
 	try
 	{
@@ -1243,27 +1072,14 @@ bool exam_store(const exam_info* info, char* path)
 				for (const auto& tmp_exam_path : g_vector_file_path_record)
 				{
 					auto tmp_trim_path = trim(tmp_exam_path);
-					const std::string::size_type idx_head = tmp_trim_path.find("exam_");
-					const std::string::size_type idx_tail = tmp_trim_path.find(".csv");
-					if (idx_head == std::string::npos || idx_tail == std::string::npos) {
-						std::cout << "None" << std::endl;
-						continue;;
-					}
-					const unsigned int length = static_cast<const unsigned int>(idx_tail) - static_cast<const unsigned int>(idx_head) - 4;
-					tmp_vector_index.emplace_back(strtol(tmp_trim_path.substr(idx_head + 5, length - 1).c_str(), nullptr, 0L));
-					
+					tmp_vector_index.emplace_back(tmp_trim_path.c_str()[tmp_trim_path.length() - 1 - 4] - '0');
 				}
 				if (!tmp_vector_index.empty())
 				{
 					std::sort(tmp_vector_index.begin(), tmp_vector_index.end(), std::less<>());
-					const std::string::size_type idx_head = tmp_path.find("exam_");
-					const std::string::size_type idx_tail = tmp_path.find(".csv");
-					const unsigned int length = static_cast<const unsigned int>(idx_tail) - static_cast<const unsigned int>(idx_head) - 4;
-					char tmp_digits[255];
-					sprintf_s(tmp_digits, sizeof(tmp_digits), "%d", tmp_vector_index[tmp_vector_index.size() - 1] + 1);
-					tmp_path.replace(idx_head + 5, length - 1, tmp_digits);
+					tmp_path[strlen(tmp_path) - 1 - 4] = static_cast<char>((tmp_vector_index[tmp_vector_index.size() - 1] + 1) + '0');
 				}
-				f.open(tmp_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+				f.open(tmp_path, std::ios::out | std::ios::trunc | std::ios::binary);
 			}
 		}
 		else
@@ -1335,7 +1151,7 @@ bool exam_store(const exam_info* info, char* path)
 		}
 		f.close();
 
-		if (!properties_update(3, tmp_path.c_str()))
+		if (!properties_update(3, tmp_path))
 		{
 			return false;
 		}

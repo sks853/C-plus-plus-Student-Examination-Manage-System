@@ -131,7 +131,6 @@ int main(int __argc, char* __argv[])
 			print_menu_admin(menus);
 			break;
 		case privilege_standard:
-			print_menu_standard_main(menus);
 			break;
 		case privilege_read:
 			print_menu_read_main(menus);

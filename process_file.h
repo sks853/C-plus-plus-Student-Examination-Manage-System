@@ -127,40 +127,6 @@ operation_info<student_info>* user_select(const char* uuid, int mode = 1);
 /**
  * **************************************************
  *
- * @brief 更新用户信息表字段
- *
- * @param key_mode (const int) 参数：关键字查找模式，按用户名查找=1，按学号查找=2
- *
- * @param key (const char*) 参数：关键字
- *
- * @param update_mode (const int) 参数：待更新模式，从0—6分别对应存储账户信息表的7个字段
- *
- * @param update_value (const char*) 参数：更新后的内容
- *
- * @return Status Code (int) 返回：状态码
- *
- * @retval 1 结果：更新操作成功
- *
- * @retval 0 结果：无法根据关键字找到数据
- *
- * @retval -1 结果：修改数字类数值时传入了含有非数字类型的字符
- *
- * @retval -2 结果：传入的模式数值未知
- *
- * @retval -3 结果：文件读取时出现异常
- *
- * @retval -4 结果：文件存储时出现异常
- *
- * @retval -5 结果：检测更新内容已经存在或不存在导致无法写入
- *
- * **************************************************
- */
-int user_update(int key_mode, const char* key, int update_mode, const char* update_value);
-
-
-/**
- * **************************************************
- *
  * @brief 存储用户信息
  *
  * @param student (const student_info*) 参数：指向学生类对象的指针

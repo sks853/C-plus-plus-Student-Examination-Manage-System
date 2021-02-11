@@ -69,46 +69,6 @@ public:
 	/**
 	 * **************************************************
 	 *
-	 * @brief 标准用户界面菜单
-	 *
-	 * 0. Exit								退出
-	 * 1. Student Information Manage		学生信息管理
-	 * 2. Examination Manage				考试信息管理
-	 */
-	std::vector<const char*> vector_standard_main;
-
-
-	/**
-	 * **************************************************
-	 *
-	 * @brief 标准用户界面下的管理学生账户菜单
-	 *
-	 * 0. Back								返回
-	 * 1. Alter Student ID					更改学生学号
-	 * 2. Alter Student Class				更改学生班级号
-	 *
-	 * **************************************************
-	 */
-	std::vector<const char*> vector_standard_manage_student;
-
-
-	/**
-	 * **************************************************
-	 *
-	 * @brief 标准用户界面下管理考试界面菜单
-	 *
-	 * 0. Back								返回
-	 * 1. Statistics Examination			统计考试信息
-	 * 2. Alter Examination					更改考试信息
-	 *
-	 * **************************************************
-	 */
-	std::vector<const char*> vector_standard_manage_exam;
-	
-	
-	/**
-	 * **************************************************
-	 *
 	 * @brief 只读用户界面下个人信息管理的当前用户信息输出格式
 	 *
 	 * 1. User Name: 						用户名

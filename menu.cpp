@@ -23,54 +23,6 @@
 /**
  * **************************************************
  *
- * @brief Standard 用户界面
- *
- * @details login >> standard
- *
- * **************************************************
- */
-const char* menu_standard_main[] = {
-		"0. Exit",							// 退出
-		"1. Student Information Manage",	// 学生信息管理
-		"2. Examination Manage"				// 考试信息管理
-};
-
-
-/**
- * **************************************************
- *
- * @brief Standard 用户界面下的学生信息管理菜单
- *
- * @details login >> standard >> Student Information Manage
- *
- * **************************************************
- */
-const char* menu_standard_mange_student[] = {
-		"0. Back",							// 返回
-		"1. Alter Student ID",				// 更改学生学号
-		"2. Alter Student Class",			// 更改学生班级号
-};
-
-
-/**
- * **************************************************
- *
- * @brief Standard 用户界面下的考试信息管理菜单
- *
- * @details login >> standard >> Examination Manage
- *
- * **************************************************
- */
-const char* menu_standard_mange_exam[] = {
-		"0. Back",							// 返回
-		"1. Statistics Examination",		// 统计考试信息
-		"2. Alter Examination"				// 更改考试信息
-};
-
-
-/**
- * **************************************************
- *
  * @brief Only-Read 用户界面
  *
  * @details login >> read-only
@@ -229,24 +181,6 @@ menu::menu()
 {
 	/*---------------------------------------- Menus ----------------------------------------*/
 
-	// login >> standard
-	for (const char* ele : menu_standard_main)
-	{
-		vector_standard_main.push_back(ele);
-	}
-
-	// login >> standard >> Student Information Manage
-	for (const char* ele : menu_standard_mange_student)
-	{
-		vector_standard_manage_student.push_back(ele);
-	}
-
-	// login >> standard >> Examination Manage
-	for (const char* ele : menu_standard_mange_exam)
-	{
-		vector_standard_manage_exam.push_back(ele);
-	}
-	
 	// login >> only_read
 	for (const char* ele : menu_read_main)
 	{
@@ -289,13 +223,11 @@ menu::menu()
 		vector_menu_select_gender.push_back(ele);
 	}
 
-	// login >> admin >> Create student information
 	for (const char* ele : menu_exam_type)
 	{
 		vector_menu_exam_type.push_back(ele);
 	}
 
-	// login >> admin >> Create student information
 	for (const char* ele : menu_exam_course)
 	{
 		vector_menu_exam_course.push_back(ele);
