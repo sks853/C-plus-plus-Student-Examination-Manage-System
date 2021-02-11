@@ -60,6 +60,11 @@
 
 /*-------------------- User/External Values --------------------*/
 
+// root account name
+constexpr auto* root_name = "root";
+
+// root account password
+constexpr auto* root_pass = "root";
 
 /*-------------------- User Enum --------------------*/
 

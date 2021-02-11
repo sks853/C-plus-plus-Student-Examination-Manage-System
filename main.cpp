@@ -69,7 +69,7 @@ int login_verify()
 			char* input_password = input(MAXSIZE_INPUT_USER_PASSWORD, true, "Please input Password: ");
 
 			// Administrator ROOT PRIVILEGE
-			if (0 == strcmp("root", input_name) && 0 == strcmp("root", input_password))
+			if (0 == strcmp(root_name, input_name) && 0 == strcmp(root_pass, input_password))
 			{
 				g_vector_login_info.emplace_back("root");
 				g_vector_login_info.emplace_back("root");
@@ -84,7 +84,7 @@ int login_verify()
 			if (user_verify(input_name, input_password))
 			{
 				std::cout << "Verify Successful!" << std::endl;
-				print_log("Login Successful.", severity_code_info, g_vector_login_info[0]);
+				print_log("Login Successful.", severity_code_info);
 				Sleep(1000);
 				return strtol(g_vector_login_info[2], nullptr, 0L);
 			}
@@ -124,17 +124,15 @@ int main(int __argc, char* __argv[])
 	
 	try
 	{
-		menu menus = menu();
+		auto menus = menu();
 		switch (login_verify())
 		{
 		case privilege_admin:
 			print_menu_admin(menus);
 			break;
 		case privilege_standard:
-			print_menu_standard_main(menus);
 			break;
 		case privilege_read:
-			print_menu_read_main(menus);
 			break;
 		default:
 			return -1;

@@ -186,7 +186,6 @@ void print_menu_admin_account_create(menu& menus)
 			// ---------- Print Information ----------
 			student->print_information();
 			print_wait("Created Successfully! Press any key to back...\n", false);
-			print_log("Create User.", severity_code_info, g_vector_login_info[0]);
 
 			// ---------- Finish ----------
 			free_ptr(student);
@@ -802,6 +801,7 @@ void print_menu_admin_exam_update(menu& menus)
 				datetime_start = input(MAXSIZE_DATETIME_LENGTH, true, "Please input start datetime: ");
 				if (0 == strcmp(trim(datetime_start).c_str(), "all"))
 				{
+					free_ptr(datetime_start, true);
 					break;
 				}
 				if (MAXSIZE_DATETIME_LENGTH == strlen(datetime_start) && std::regex_match(datetime_start, std::regex("^[1-9]\\d*$")))
@@ -818,6 +818,7 @@ void print_menu_admin_exam_update(menu& menus)
 				datetime_end = input(MAXSIZE_DATETIME_LENGTH, true, "Please input end datetime: ");
 				if (0 == strcmp(trim(datetime_end).c_str(), "all"))
 				{
+					free_ptr(datetime_end, true);
 					break;
 				}
 				if (MAXSIZE_DATETIME_LENGTH == strlen(datetime_end) && std::regex_match(datetime_end, std::regex("^[1-9]\\d*$")))

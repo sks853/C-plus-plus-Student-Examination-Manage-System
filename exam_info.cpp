@@ -27,11 +27,10 @@
  */
 void exam_info::print_exam()
 {
-	std::cout << "========== ========== ========== ========== ========== ========== ========== ==========" << std::endl;
 	std::cout << "********** ********** ********** ********** ********** ********** ********** **********" << std::endl;
 	std::cout << "|";
 	std::cout.width(12);
-	std::cout << "Exam D & T" << "|";
+	std::cout << "Exam Date" << "|";
 	std::cout.width(MAXSIZE_INPUT_USER_ID);
 	std::cout << "Admin" << "|";
 	std::cout.width(DEFAULT_PRINT_WIDTH);
@@ -115,5 +114,4 @@ void exam_info::print_exam()
 	}
 
 	std::cout << "********** ********** ********** ********** ********** ********** ********** **********" << std::endl;
-	std::cout << "========== ========== ========== ========== ========== ========== ========== ==========\n" << std::endl;
 }

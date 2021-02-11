@@ -19,7 +19,7 @@
 #include "process_file.h"
 
 
- // define global value of login information
+// define global value of login information
 std::vector<const char*> g_vector_login_info;
 
 
@@ -42,7 +42,7 @@ std::vector<const char*> g_vector_login_info;
  */
 bool user_verify(const char* user_name, const char* user_password)
 {
-	for (const auto& tmp_line : g_vector_file_path_account)
+	for (const auto&  tmp_line: g_vector_file_path_account)
 	{
 		std::string tmp_file = trim(tmp_line);
 		try
@@ -108,277 +108,87 @@ bool user_verify(const char* user_name, const char* user_password)
 operation_info<student_info>* user_select(const char* uuid, const int mode)
 {
 	auto* operation = new operation_info<student_info>;
-
+	
 	for (const auto& tmp_line : g_vector_file_path_account)
 	{
-		bool flag_select = false;
-
 		std::string tmp_file = trim(tmp_line);
-
-		std::fstream f;
-
 		try
 		{
+			std::fstream f;
 			f.open(tmp_file, std::ios::in | std::ios::binary);
+			if (!f.is_open())
+			{
+				print_log("Can't open an account file when load accounts to verify", severity_code_warning);
+				continue;
+			}
+
+			std::string tmp_string;
+
+			while (std::getline(f, tmp_string))
+			{
+				char* context = new char[tmp_string.length() + 1];
+				char* next_context;
+				strcpy_s(context, tmp_string.length() + 1, tmp_string.c_str());
+				char* token = strtok_s(context, ",", &next_context);
+				std::vector<const char*> vector_tmp;
+				while (token != nullptr)
+				{
+					if ('\r' == token[strlen(token) - 1] || '\n' == token[strlen(token) - 1])
+					{
+						token[strlen(token) - 1] = '\0';
+					}
+					vector_tmp.emplace_back(token);
+					token = strtok_s(nullptr, ",", &next_context);
+				}
+
+				switch (mode)
+				{
+				case 1:
+					if (0 != strcmp(uuid, vector_tmp[0]))
+					{
+						continue;
+					}
+					break;
+				case 2:
+					if (0 != strcmp(uuid, vector_tmp[4]))
+					{
+						continue;
+					}
+					break;
+				default:
+					print_log("Error select user param. ", severity_code_error);
+					f.close();
+					return operation;
+				}
+				
+				try
+				{
+					char* tmp_str_line = new char[tmp_file.length() + 1];
+					strcpy_s(tmp_str_line, tmp_file.length() + 1, tmp_file.c_str());
+					operation->info_path = tmp_str_line;
+					operation->info_class->user_id = const_cast<char*>(vector_tmp[0]);
+					operation->info_class->user_password = const_cast<char*>(vector_tmp[1]);
+					operation->info_class->user_privilege = strtol(const_cast<char*>(vector_tmp[2]), nullptr, 0L);
+					operation->info_class->name = const_cast<char*>(vector_tmp[3]);
+					operation->info_class->id = const_cast<char*>(vector_tmp[4]);
+					operation->info_class->class_id = const_cast<char*>(vector_tmp[5]);
+					operation->info_class->gender = strtol(const_cast<char*>(vector_tmp[6]), nullptr, 0L);
+					operation->info_flag = true;
+				}
+				catch (std::exception&)
+				{
+					print_log("Load information file errors!", severity_code_error);
+				}
+
+			}
+			f.close();
 		}
 		catch (std::exception&)
 		{
 			print_log("Not found file of accounts", severity_code_error);
 		}
-		if (!f.is_open())
-		{
-			print_log("Can't open an account file when load accounts to verify", severity_code_warning);
-			continue;
-		}
-
-		std::string tmp_string;
-
-		while (std::getline(f, tmp_string))
-		{
-			auto* student = new student_info();
-
-			char* context = new char[tmp_string.length() + 1];
-			char* next_context;
-			strcpy_s(context, tmp_string.length() + 1, tmp_string.c_str());
-			char* token = strtok_s(context, ",", &next_context);
-			std::vector<const char*> tmp_vector_field;
-			while (token != nullptr)
-			{
-				if ('\r' == token[strlen(token) - 1] || '\n' == token[strlen(token) - 1])
-				{
-					token[strlen(token) - 1] = '\0';
-				}
-				tmp_vector_field.emplace_back(token);
-				token = strtok_s(nullptr, ",", &next_context);
-			}
-
-			switch (mode)
-			{
-			case 1:
-			case 2:
-				if ((1 == mode && 0 == strcmp(uuid, tmp_vector_field[0])) || (2 == mode && 0 == strcmp(uuid, tmp_vector_field[4])))
-				{
-					try
-					{
-						flag_select = true;
-						operation->info_flag = true;
-						char* tmp_str_line = new char[tmp_file.length() + 1];
-						strcpy_s(tmp_str_line, tmp_file.length() + 1, tmp_file.c_str());
-						operation->info_class->user_id = const_cast<char*>(tmp_vector_field[0]);
-						operation->info_class->user_password = const_cast<char*>(tmp_vector_field[1]);
-						operation->info_class->user_privilege = strtol(const_cast<char*>(tmp_vector_field[2]), nullptr, 0L);
-						operation->info_class->name = const_cast<char*>(tmp_vector_field[3]);
-						operation->info_class->id = const_cast<char*>(tmp_vector_field[4]);
-						operation->info_class->class_id = const_cast<char*>(tmp_vector_field[5]);
-						operation->info_class->gender = strtol(const_cast<char*>(tmp_vector_field[6]), nullptr, 0L);
-						operation->info_path = tmp_str_line;
-					}
-					catch (...)
-					{
-						flag_select = false;
-						operation->info_flag = false;
-					}
-				}
-				break;
-			default:
-				print_log("Error select user param. ", severity_code_error);
-				f.close();
-				return operation;
-			}
-
-			try
-			{
-				student->user_id = const_cast<char*>(tmp_vector_field[0]);
-				student->user_password = const_cast<char*>(tmp_vector_field[1]);
-				student->user_privilege = strtol(const_cast<char*>(tmp_vector_field[2]), nullptr, 0L);
-				student->name = const_cast<char*>(tmp_vector_field[3]);
-				student->id = const_cast<char*>(tmp_vector_field[4]);
-				student->class_id = const_cast<char*>(tmp_vector_field[5]);
-				student->gender = strtol(const_cast<char*>(tmp_vector_field[6]), nullptr, 0L);
-			}
-			catch (std::exception&)
-			{
-				print_log("Load information file errors!", severity_code_error);
-				operation->info_flag = false;
-			}
-
-			operation->info_vector_class.emplace_back(*student);
-		}
-
-		f.close();
-
-
-		if (flag_select)
-		{
-			return operation;
-		}
-		operation->info_vector_class.clear();
 	}
 	return operation;
-}
-
-
-/**
- * **************************************************
- *
- * @brief Update user information table fields according to criteria
- *
- * @param key_mode (const int) Keyword search mode, search by user name =1, search by student number =2
- *
- * @param key (const char*) keyword
- *
- * @param update_mode (const int) The mode to be updated, from 0 to 6, corresponds to 7 fields of the storage account information table
- *
- * @param update_value (const char*) Updated content
- *
- * @return Status Code (int) Status Code
- *
- * @retval 1 Update operation successful
- *
- * @retval 0 Cannot find data by keyword
- *
- * @retval -1 A character containing a non-numeric type was passed when modifying a numeric class value
- *
- * @retval -2 The value of the passed mode is unknown
- *
- * @retval -3 An exception occurred while reading the file
- *
- * @retval -4 An exception occurred while the file was being stored
- *
- * @retval -5 Unable to write because the update exists or does not exist
- *
- * **************************************************
- */
-int user_update(const int key_mode, const char* key, const int update_mode, const char* update_value)
-{
-	int status_code = 1;
-	
-	auto* operation = new operation_info<student_info>;
-	switch (key_mode)
-	{
-	case 1:
-		free_ptr(operation);
-		operation = user_select(key, 1);
-		break;
-	case 2:
-		free_ptr(operation);
-		operation = user_select(key, 2);
-		break;
-	default:
-		free_ptr(operation);
-		return -2;
-	}
-
-	if (!operation->info_flag)
-	{
-		free_ptr(operation);
-		return 0;
-	}
-
-	char* tmp = new char[strlen(update_value) + 1];
-	strcpy_s(tmp, strlen(update_value) + 1, update_value);
-
-	for (unsigned int i = 0; i < operation->info_vector_class.size() && 1 == status_code; i++)
-	{
-		bool flag_find_mode = false;
-		flag_find_mode |= 1 == key_mode && 0 == strcmp(operation->info_vector_class[i].user_id, key);
-		flag_find_mode |= 2 == key_mode && 0 == strcmp(operation->info_vector_class[i].id, key);
-		if (flag_find_mode)
-		{
-			switch (update_mode)
-			{
-			case 0: // User Name
-				if (user_select(tmp, 1)->info_flag)
-				{
-					status_code = -5;
-					break;
-				}
-				operation->info_vector_class[i].user_id = tmp;
-				break;
-			case 1: // User Password
-				operation->info_vector_class[i].user_password = tmp;
-				break;
-			case 2: // User Privilege
-				if (0 != strcmp("2", tmp) && 0 != strcmp("1", tmp) && 0 != strcmp("0", tmp))
-				{
-					status_code = -1;
-					break;
-				}
-				operation->info_vector_class[i].user_privilege = strtol(tmp, nullptr, 0L);
-				break;
-			case 3: // Name
-				operation->info_vector_class[i].name = tmp;
-				break;
-			case 4: // Student ID
-				if (!std::regex_match(tmp, std::regex("^[0-9]\\d*$")))
-				{
-					status_code = -1;
-					break;
-				}
-				if (user_select(tmp, 2)->info_flag)
-				{
-					status_code = -5;
-					break;
-				}
-				operation->info_vector_class[i].id = tmp;
-				break;
-			case 5: // Class ID
-				if (!std::regex_match(tmp, std::regex("^[0-9]\\d*$")))
-				{
-					status_code = -1;
-					break;
-				}
-				if (class_select(tmp))
-				{
-					status_code = -5;
-					break;
-				}
-				operation->info_vector_class[i].class_id = tmp;
-				break;
-			case 6: // Gender
-				if (0 != strcmp("1", tmp) && 0 != strcmp("0", tmp))
-				{
-					status_code = -1;
-					break;
-				}
-				operation->info_vector_class[i].user_privilege = strtol(tmp, nullptr, 0L);
-				break;
-			default:
-				status_code = -2;
-				break;
-			}
-		}
-	}
-
-	if (1 == status_code)
-	{
-		std::fstream f;
-		try
-		{
-			f.open(operation->info_path, std::ios::out | std::ios::trunc | std::ios::binary);
-		}
-		catch (...)
-		{
-			free_ptr(operation);
-			free_ptr(tmp, true);
-			return -3;
-		}
-		if (!f.is_open())
-		{
-			free_ptr(operation);
-			free_ptr(tmp, true);
-			return -3;
-		}
-		if (!user_store(operation->info_vector_class, const_cast<const char*>(operation->info_path)))
-		{
-			status_code = -4;
-		}
-		f.close();
-	}
-	
-	free_ptr(tmp, true);
-	free_ptr(operation);
-	return status_code;
 }
 
 
@@ -415,7 +225,7 @@ bool user_store(const student_info* student)
 		{
 			return false;
 		}
-
+		
 		f << student->user_id << ",";
 		f << student->user_password << ",";
 		f << student->user_privilege << ",";
@@ -423,41 +233,7 @@ bool user_store(const student_info* student)
 		f << student->id << ",";
 		f << student->class_id << ",";
 		f << student->gender << "\r\n";
-
-		f.close();
-	}
-	catch (const std::exception& e)
-	{
-		print_log(e.what(), severity_code_error);
-		return false;
-	}
-
-	return true;
-}
-
-
-bool user_store(std::vector<student_info>& vector_account, const char* path)
-{
-	std::fstream f;
-	try
-	{
-		f.open(path, std::ios::out | std::ios::trunc | std::ios::binary);
-		if (!f.is_open())
-		{
-			return false;
-		}
-
-		for (const auto& tmp : vector_account)
-		{
-			f << tmp.user_id << ",";
-			f << tmp.user_password << ",";
-			f << tmp.user_privilege << ",";
-			f << tmp.name << ",";
-			f << tmp.id << ",";
-			f << tmp.class_id << ",";
-			f << tmp.gender << "\r\n";
-		}
-
+		
 		f.close();
 	}
 	catch (const std::exception& e)
@@ -519,16 +295,9 @@ operation_info<student_info>* user_delete(operation_info<student_info>* operatio
 		}
 		f.close();
 		f.open(operation->info_path, std::ios::out | std::ios::trunc | std::ios::binary);
-		for (auto tmp : tmp_vector_line)
+		for (const auto& tmp : tmp_vector_line)
 		{
-			int index = static_cast<int>(tmp.length()) - 1;
-			while ((tmp[index] == '\r' || tmp[index] == '\n') && 0 < index)
-			{
-				tmp[index] = '\0';
-				index--;
-			}
-			
-			f << tmp << "\n";
+			f << tmp << "\r\n";
 		}
 		f.close();
 		operation->info_flag = true;
@@ -741,7 +510,7 @@ operation_info<class_info>* class_delete(operation_info<class_info>* operation)
  * 根据传递值选择查找模式
  * 值表示如下：————表示为nullptr
  *
- * 0=0000：传入参数有【————】【————】【————】 （全为nullptr，默认查询全部考试）
+ * 0=0000：传入参数有【————】【————】【————】 全为nullptr （默认查询全部考试）
  *
  * 1=0001：传入参数有【学生学号】【————】【————】 （默认查询指定学生参与的全部考试）
  *
@@ -790,7 +559,7 @@ int set_select_mode(const char* student_name, const char* datetime_start, const 
  *
  * @brief split line to field
  *
- * @param tmp_line (std::string&) string line
+ * @param tmp_line (std::string&) string line 
  *
  * @return std::vector<char*> vector of include split string
  *
@@ -808,7 +577,7 @@ std::vector<char*> split_line(std::string& tmp_line)
 	try
 	{
 		char* token = strtok_s(context, ",", &next_context);
-		while (nullptr != token)
+		while (token != nullptr)
 		{
 			std::string token_trim = trim(token);
 			char* tmp_const_char_field = new char[token_trim.length() + 1];
@@ -870,8 +639,8 @@ bool datetime_compare(char* datetime_compare, char* datetime_start, char* dateti
  * @param datetime_start (const char*) start datetime, default=nullptr
  *
  * @param datetime_end (const char*) end datetime, default=nullptr
- *
- * @return operation_info<exam_info*>* vector include class object of exam_info pointer, field
+ * 
+ * @return operation_info<std::vector<std::vector<std::vector<char*>>>>* vector include class object of exam_info pointer, field
  *
  * **************************************************
  */
@@ -879,10 +648,10 @@ operation_info<exam_info*>* exam_select(const char* student_id, char* datetime_s
 {
 	auto* operation = new operation_info<exam_info*>;
 
-	// 根据传递参数选择查询处理模式
+	// 查询处理模式
 	const int select_mode = set_select_mode(student_id, datetime_start, datetime_end);
 
-	// 如果没有考试记录则直接返回结果
+	// 如果没有考试记录则直接返回结果 (if there is no examination record, the result is returned directly)
 	if (g_vector_file_path_record.empty())
 	{
 		try
@@ -947,7 +716,7 @@ operation_info<exam_info*>* exam_select(const char* student_id, char* datetime_s
 
 			// 读取完一行并分割字段
 			std::vector<char*> tmp_line_field = split_line(tmp_context_line);
-
+			
 			if (!tmp_line_field.empty())
 			{
 				// 捕获考试基本信息
@@ -1088,9 +857,9 @@ operation_info<exam_info*>* exam_select(const char* student_id, char* datetime_s
 						print_log(e.what());
 						print_log("Error in get student information in line > 3");
 					}
-				}
-			}
-		}
+				} // 大于第三行的某一行if
+			} // 仍在单个文件某一行中if
+		} // 仍在单个文件循环内while
 
 		// 如果日期对上了，学号也对上了，那么认为这个文件是需要的，存入考试记录类对象
 		if (flag_is_select_file_student_id && flag_is_select_file_datetime)
@@ -1132,7 +901,7 @@ operation_info<exam_info*>* exam_select(const char* student_id, char* datetime_s
  *
  * **************************************************
  */
-operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, char* student_id, char* subject_name,const double new_score)
+operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, char* student_id, char* subject_name, double new_score)
 {
 	operation->info_flag = false;
 
@@ -1155,7 +924,7 @@ operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, c
 				index_subject = static_cast<int>(j);
 			}
 		}
-
+		
 		// 如果有下标说明找到了，那就试着更改成绩，当然前提是得先找到这个学生
 		if (-1 != index_subject)
 		{
@@ -1191,7 +960,7 @@ operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, c
 
 					// 学生平均总分 = 当前学生平均总分 + (新的单科分数 - 旧的单科分数) / 科目总数
 					student->score_average = student->score_average + (new_score - old_score_subject) / tmp->count_subject;
-
+					
 					// 考试总平均分 = 当前考试总平均分 + (新的学生平均总分 - 旧的学生平均总分) / 学生总人数
 					tmp->average_score = tmp->average_score + (student->score_average - old_score_average) / tmp->count_student;
 
@@ -1201,7 +970,7 @@ operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, c
 			}
 		}
 	}
-
+	
 	return operation;
 }
 
@@ -1226,7 +995,7 @@ operation_info<exam_info*>* exam_update(operation_info<exam_info*>* operation, c
 bool exam_store(const exam_info* info, char* path)
 {
 	std::fstream f;
-	std::string tmp_path = PATH_FOLDER_RECORD"exam_*****.csv";
+	char tmp_path[] = PATH_FOLDER_RECORD"exam_0.csv";
 
 	try
 	{
@@ -1243,34 +1012,21 @@ bool exam_store(const exam_info* info, char* path)
 				for (const auto& tmp_exam_path : g_vector_file_path_record)
 				{
 					auto tmp_trim_path = trim(tmp_exam_path);
-					const std::string::size_type idx_head = tmp_trim_path.find("exam_");
-					const std::string::size_type idx_tail = tmp_trim_path.find(".csv");
-					if (idx_head == std::string::npos || idx_tail == std::string::npos) {
-						std::cout << "None" << std::endl;
-						continue;;
-					}
-					const unsigned int length = static_cast<const unsigned int>(idx_tail) - static_cast<const unsigned int>(idx_head) - 4;
-					tmp_vector_index.emplace_back(strtol(tmp_trim_path.substr(idx_head + 5, length - 1).c_str(), nullptr, 0L));
-					
+					tmp_vector_index.emplace_back(tmp_trim_path.c_str()[tmp_trim_path.length() - 1 - 4] - '0');
 				}
 				if (!tmp_vector_index.empty())
 				{
 					std::sort(tmp_vector_index.begin(), tmp_vector_index.end(), std::less<>());
-					const std::string::size_type idx_head = tmp_path.find("exam_");
-					const std::string::size_type idx_tail = tmp_path.find(".csv");
-					const unsigned int length = static_cast<const unsigned int>(idx_tail) - static_cast<const unsigned int>(idx_head) - 4;
-					char tmp_digits[255];
-					sprintf_s(tmp_digits, sizeof(tmp_digits), "%d", tmp_vector_index[tmp_vector_index.size() - 1] + 1);
-					tmp_path.replace(idx_head + 5, length - 1, tmp_digits);
+					tmp_path[strlen(tmp_path) - 1 - 4] = static_cast<char>((tmp_vector_index[tmp_vector_index.size() - 1] + 1) + '0');
 				}
-				f.open(tmp_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+				f.open(tmp_path, std::ios::out | std::ios::trunc | std::ios::binary);
 			}
 		}
 		else
 		{
 			f.open(path, std::ios::out | std::ios::trunc | std::ios::binary);
 		}
-
+		
 		if (!f.is_open())
 		{
 			return false;
@@ -1308,7 +1064,7 @@ bool exam_store(const exam_info* info, char* path)
 				}
 			}
 		}
-
+		
 		if (!info->vector_student_exam_record.empty())
 		{
 			for (const auto& tmp : info->vector_student_exam_record)
@@ -1335,7 +1091,7 @@ bool exam_store(const exam_info* info, char* path)
 		}
 		f.close();
 
-		if (!properties_update(3, tmp_path.c_str()))
+		if (!properties_update(3, tmp_path))
 		{
 			return false;
 		}
@@ -1356,7 +1112,7 @@ bool exam_store(const exam_info* info, char* path)
  * @brief removes trailing formatting characters
  *
  * @param str (string&) strings
- *
+ * 
  * @return string
  *
  * **************************************************
@@ -1376,22 +1132,20 @@ std::string trim(const std::string& str)
 }
 
 
-/**
- * **************************************************
- *
- * @brief print out log to log file
- *
- * @param logs (const char*) log message
- *
- * @param severity_code (const int) level of severity, code from 0->2 is [Error]->[Warning]->[Info], default=1
- *
- * @param creator (char*) creator
- *
- * @retval None
- *
- * **************************************************
- */
-void print_log(const char* logs, const int severity_code, const char* creator)
+ /**
+  * **************************************************
+  *
+  * @brief print out log to log file
+  *
+  * @param logs (const char*) log message
+  *
+  * @param severity_code (const int) level of severity, code from 0->2 is [Error]->[Warning]->[Info], default=1
+  *
+  * @retval None
+  *
+  * **************************************************
+  */
+void print_log(const char* logs, const int severity_code)
 {
 	tm* time_tm = new tm;
 	time_t now_time = time(nullptr);
@@ -1414,28 +1168,14 @@ void print_log(const char* logs, const int severity_code, const char* creator)
 	default:
 		strcpy_s(tmp_code, 24, "[Unknown]");
 	}
-
-
-	try
-	{
-		if (nullptr == creator)
-		{
-			g_ptr_log << "[" << tmp_content << "]" << tmp_code << "[System]" << logs << std::endl;
-		}
-		else
-		{
-			g_ptr_log << "[" << tmp_content << "]" << tmp_code << "[" << creator << "]" << logs << std::endl;
-		}
-	}
-	catch (...)
-	{
-		free_ptr(time_tm);
-	}
-
+	
+	g_ptr_log << "[" << tmp_content << "]" << tmp_code << logs << std::endl;
+	
 	if (g_ptr_log.fail())
 	{
 		system("cls");
 		std::cout << "Can't write to log" << std::endl;
+		exit(-1);
 	}
 
 	free_ptr(time_tm);
@@ -1446,7 +1186,7 @@ void print_log(const char* logs, const int severity_code, const char* creator)
  * **************************************************
  *
  * @brief verify file path validity
- *
+ * 
  * @param file_path (const char*) file path
  *
  * @return bool
@@ -1460,7 +1200,7 @@ void print_log(const char* logs, const int severity_code, const char* creator)
 bool is_valid_file_path(const char* file_path)
 {
 	try {
-		const std::regex reg_double_slash_path("^.(\\\\[a-zA-Z0-9_]+)+(.csv)$");
+        const std::regex reg_double_slash_path("^.(\\\\[a-zA-Z0-9_]+)+(.csv)$");
 		const std::regex reg_back_slant_path("^^.(/[a-zA-Z0-9_]+)+(.csv)$");
 		if (std::regex_match(file_path, reg_double_slash_path) || std::regex_match(file_path, reg_back_slant_path)) {
 			return true;
@@ -1468,7 +1208,7 @@ bool is_valid_file_path(const char* file_path)
 	}
 	catch (std::regex_error& e) {
 		std::cout << e.what() << "\ncode: " << e.code() << std::endl;;
-		return false;
+        return false;
 	}
 	return false;
 }
@@ -1485,52 +1225,40 @@ bool is_valid_file_path(const char* file_path)
  */
 void init_properties()
 {
-	std::fstream f;
-	while (true)
-	{
-		try
-		{
-			f.open(PATH_FILE_PROPERTIES, std::ios::in | std::ios::binary);
-			if (!f.is_open() || f.fail())
-			{
-				std::cout << "Initialize fail!" << std::endl;
-				print_log("Can't open properties.", severity_code_error);
-				f.open(PATH_FILE_PROPERTIES, std::ios::out | std::ios::trunc | std::ios::binary);
+    std::fstream f;
+    try
+    {
+		f.open(PATH_FILE_PROPERTIES, std::ios::in | std::ios::binary);
+    	if (!f.is_open() || f.fail())
+    	{
+			std::cout << "Initialize fail!" << std::endl;
+			print_log("Can't open properties. From function \"init_properties()\"", severity_code_error);
+			exit(-1);
+    	}
+    }
+    catch (std::exception& e)
+    {
+		std::cout << "Can't open properties!" << "\n" << e.what() << std::endl;
+		print_log("Initialize fail, can't open properties. From function \"init_properties()\"", severity_code_error);
+		exit(-1);
+    }
 
-				f << SIGN_PROPERTIES_ACCOUNT << "\r\n";
-				f << SIGN_PROPERTIES_CLASS << "\r\n";
-				f << SIGN_PROPERTIES_RECORD << "\r\n";
+    std::string tmp_line;
 
-				f.close();
-			}
-			else
-			{
-				break;
-			}
-		}
-		catch (std::exception& e)
-		{
-			std::cout << "Can't open properties!" << "\n" << e.what() << std::endl;
-			print_log("Initialize fail, can't open properties.", severity_code_error);
-		}
-	}
+    auto line_mode = 0;
+    auto count_db_account = 0;
+	auto count_db_class = 0;
+    auto count_db_record = 0;
 
-	std::string tmp_line;
-
-	int line_mode = 0;
-	int count_db_account = 0;
-	int count_db_class = 0;
-	int count_db_record = 0;
-
-	while (std::getline(f, tmp_line))
-	{
+    while (std::getline(f, tmp_line))
+    {
 		std::string tmp = trim(tmp_line);
 
-		if (0 == strcmp(tmp.c_str(), SIGN_PROPERTIES_ACCOUNT))
-		{
-			line_mode = 0;
-			continue;
-		}
+        if (0 == strcmp(tmp.c_str(), SIGN_PROPERTIES_ACCOUNT))
+        {
+            line_mode = 0;
+            continue;
+        }
 
 		if (0 == strcmp(tmp.c_str(), SIGN_PROPERTIES_CLASS))
 		{
@@ -1538,16 +1266,16 @@ void init_properties()
 			continue;
 		}
 
-		if (0 == strcmp(tmp.c_str(), SIGN_PROPERTIES_RECORD))
-		{
-			line_mode = 2;
-			continue;
-		}
+        if (0 == strcmp(tmp.c_str(), SIGN_PROPERTIES_RECORD))
+        {
+            line_mode = 2;
+            continue;
+        }
 
-		if (!is_valid_file_path(tmp.c_str()))
-		{
-			continue;
-		}
+        if (!is_valid_file_path(tmp.c_str()))
+        {
+            continue;
+        }
 
 		if (is_valid_file_path(tmp.c_str()))
 		{
@@ -1570,24 +1298,24 @@ void init_properties()
 			}
 		}
 
-	}
+    }
 
-	if (0 == count_db_account)
-	{
-		print_log("Path list of account is empty.", severity_code_info);
-	}
+    if (0 == count_db_account)
+    {
+		print_log("Path list of account is empty. From function \"init_properties()\"", severity_code_info);
+    }
 
 	if (0 == count_db_class)
 	{
-		print_log("Path list of class is empty.", severity_code_info);
+		print_log("Path list of class is empty. From function \"init_properties()\"", severity_code_info);
 	}
 
-	if (0 == count_db_record)
-	{
-		print_log("Path list of record is empty.", severity_code_info);
-	}
+    if (0 == count_db_record)
+    {
+		print_log("Path list of record is empty. From function \"init_properties()\"", severity_code_info);
+    }
 
-	f.close();
+    f.close();
 }
 
 
@@ -1609,7 +1337,7 @@ void init_log()
 	g_ptr_log.open(PATH_FILE_LOGS, std::ios::out | std::ios::app | std::ios::binary);
 	if (!g_ptr_log.is_open() || g_ptr_log.fail())
 	{
-		print_log("Can't open log file!", severity_code_error);
+		std::cout << "Can't open log file!" << std::endl;
 		exit(-1);
 	}
 }

@@ -43,7 +43,7 @@ char* input(const int max_str_length, const bool is_hint, ...)
 		std::cout << va_arg(ap, const char*);
 	}
 	va_end(ap);
-	
+
 	rewind(stdin);
 	// 可以吃掉缓存区字符，但是需要先行输入，保留待用
 	//while ((c = getchar()) != '\n' && c != EOF)
@@ -130,8 +130,9 @@ int input_judgment(const bool is_print_hint, const bool is_default_error, ...)
 	}
 	if (is_default_error == true)
 	{
-		print_wait("Please input a correct option! ");
+		std::cout << "Please input a correct option! ";
 	}
+	print_wait("");
 	
 	return -1;
 }
