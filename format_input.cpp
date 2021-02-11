@@ -43,7 +43,7 @@ char* input(const int max_str_length, const bool is_hint, ...)
 		std::cout << va_arg(ap, const char*);
 	}
 	va_end(ap);
-	
+
 	rewind(stdin);
 	// 可以吃掉缓存区字符，但是需要先行输入，保留待用
 	//while ((c = getchar()) != '\n' && c != EOF)
@@ -130,8 +130,9 @@ int input_judgment(const bool is_print_hint, const bool is_default_error, ...)
 	}
 	if (is_default_error == true)
 	{
-		print_wait("Please input a correct option! ");
+		std::cout << "Please input a correct option! ";
 	}
+	print_wait("");
 	
 	return -1;
 }
@@ -170,134 +171,4 @@ int input_option(const int max_option_length)
 	}
 	
 	return choice;
-}
-
-
-/**
- * **************************************************
- *
- * @brief input datetime
- *
- * @return char* datetime
- *
- * **************************************************
- */
-char* input_datetime()
-{
-	char* datetime = new char[13];
-	int index = 0;
-	while (true)
-	{
-		char* tmp = input(4, true, "Please set exam years: ");
-		if (is_positive_integer(tmp) && (1970 < strtol(tmp, nullptr, 0L) && strtol(tmp, nullptr, 0L) < 2090))
-		{
-			for (int j = 0; j < 4; j++, index++)
-			{
-				datetime[index] = tmp[j];
-			}
-			free_ptr(tmp, true);
-			break;
-		}
-		free_ptr(tmp);
-		print_wait("Please input correct date & time.");
-	}
-	while (true)
-	{
-		char* tmp = input(2, true, "Please set exam months: ");
-		if (is_positive_integer(tmp) && (0 < strtol(tmp, nullptr, 0L) && strtol(tmp, nullptr, 0L) <= 12))
-		{
-			if (1 == strlen(tmp))
-			{
-				datetime[index] = '0';
-				datetime[index + 1] = tmp[0];
-				index += 2;
-			}
-			else
-			{
-				for (auto j = 0; j < 2; j++, index++)
-				{
-					datetime[index] = tmp[j];
-				}
-			}
-			free_ptr(tmp, true);
-			break;
-		}
-		free_ptr(tmp);
-		print_wait("Please input correct date & time.");
-	}
-	while (true)
-	{
-		// If you need to make a leap year judgment, do it yourself
-		char* tmp = input(2, true, "Please set exam days: ");
-		if (is_positive_integer(tmp) && (0 < strtol(tmp, nullptr, 0L) && strtol(tmp, nullptr, 0L) <= 31))
-		{
-			if (1 == strlen(tmp))
-			{
-				datetime[index] = '0';
-				datetime[index + 1] = tmp[0];
-				index += 2;
-			}
-			else
-			{
-				for (auto j = 0; j < 2; j++, index++)
-				{
-					datetime[index] = tmp[j];
-				}
-			}
-			free_ptr(tmp, true);
-			break;
-		}
-		free_ptr(tmp);
-		print_wait("Please input correct date & time.");
-	}
-	while (true)
-	{
-		char* tmp = input(2, true, "Please set exam hours: ");
-		if (is_positive_integer(tmp) && (0 <= strtol(tmp, nullptr, 0L) && strtol(tmp, nullptr, 0L) < 24))
-		{
-			if (1 == strlen(tmp))
-			{
-				datetime[index] = '0';
-				datetime[index + 1] = tmp[0];
-				index += 2;
-			}
-			else
-			{
-				for (auto j = 0; j < 2; j++, index++)
-				{
-					datetime[index] = tmp[j];
-				}
-			}
-			free_ptr(tmp, true);
-			break;
-		}
-		free_ptr(tmp);
-		print_wait("Please input correct date & time.");
-	}
-	while (true)
-	{
-		char* tmp = input(2, true, "Please set exam minutes: ");
-		if (is_positive_integer(tmp) && (0 <= strtol(tmp, nullptr, 0L) && strtol(tmp, nullptr, 0L) < 60))
-		{
-			if (1 == strlen(tmp))
-			{
-				datetime[index] = '0';
-				datetime[index + 1] = tmp[0];
-				index += 2;
-			}
-			else
-			{
-				for (auto j = 0; j < 2; j++, index++)
-				{
-					datetime[index] = tmp[j];
-				}
-			}
-			free_ptr(tmp, true);
-			break;
-		}
-		free_ptr(tmp);
-		print_wait("Please input correct date & time.");
-	}
-	datetime[12] = '\0';
-	return datetime;
 }

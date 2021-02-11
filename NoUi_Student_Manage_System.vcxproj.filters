@@ -31,12 +31,12 @@
     <Filter Include="头文件\Info">
       <UniqueIdentifier>{1fd6fbc7-746c-4267-9289-dea2850a9e0a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Template">
-      <UniqueIdentifier>{0489fee2-b1c8-4ed4-848c-fa6836b21546}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="template_free_pointer.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="format_input.h">
@@ -54,29 +54,11 @@
     <ClInclude Include="process_file.h">
       <Filter>头文件\IO</Filter>
     </ClInclude>
+    <ClInclude Include="student_information.h">
+      <Filter>头文件\Info</Filter>
+    </ClInclude>
     <ClInclude Include="menu.h">
       <Filter>头文件\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="class_info.h">
-      <Filter>头文件\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="student_info.h">
-      <Filter>头文件\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="template_free_pointer.h">
-      <Filter>头文件\Template</Filter>
-    </ClInclude>
-    <ClInclude Include="template_operation_info.h">
-      <Filter>头文件\Template</Filter>
-    </ClInclude>
-    <ClInclude Include="exam_info.h">
-      <Filter>头文件\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="exam_record_info.h">
-      <Filter>头文件\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="manage_read.h">
-      <Filter>头文件\Manage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,23 +80,11 @@
     <ClCompile Include="process_file.cpp">
       <Filter>源文件\IO</Filter>
     </ClCompile>
+    <ClCompile Include="student_information.cpp">
+      <Filter>源文件\Info</Filter>
+    </ClCompile>
     <ClCompile Include="menu.cpp">
       <Filter>源文件\Info</Filter>
-    </ClCompile>
-    <ClCompile Include="class_info.cpp">
-      <Filter>源文件\Info</Filter>
-    </ClCompile>
-    <ClCompile Include="student_info.cpp">
-      <Filter>源文件\Info</Filter>
-    </ClCompile>
-    <ClCompile Include="exam_info.cpp">
-      <Filter>源文件\Info</Filter>
-    </ClCompile>
-    <ClCompile Include="exam_record_info.cpp">
-      <Filter>源文件\Info</Filter>
-    </ClCompile>
-    <ClCompile Include="manage_read.cpp">
-      <Filter>源文件\Manage</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

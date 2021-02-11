@@ -139,34 +139,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="class_info.h" />
-    <ClInclude Include="exam_info.h" />
-    <ClInclude Include="exam_record_info.h" />
     <ClInclude Include="format_input.h" />
     <ClInclude Include="format_print.h" />
-    <ClInclude Include="manage_read.h" />
     <ClInclude Include="template_free_pointer.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="manage_admin.h" />
     <ClInclude Include="manage_standard.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="process_file.h" />
-    <ClInclude Include="student_info.h" />
-    <ClInclude Include="template_operation_info.h" />
+    <ClInclude Include="student_information.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="class_info.cpp" />
-    <ClCompile Include="exam_info.cpp" />
-    <ClCompile Include="exam_record_info.cpp" />
     <ClCompile Include="format_input.cpp" />
     <ClCompile Include="format_print.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manage_admin.cpp" />
-    <ClCompile Include="manage_read.cpp" />
     <ClCompile Include="manage_standard.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="process_file.cpp" />
-    <ClCompile Include="student_info.cpp" />
+    <ClCompile Include="student_information.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

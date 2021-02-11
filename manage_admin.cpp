@@ -42,7 +42,7 @@ void print_menu_admin(menu& menus)
 		case 0:
 			std::cout << "Bye" << std::endl;
 			Sleep(800);
-			return;
+			exit(0);
 		case 1:
 			print_menu_admin_account_create(menus);
 			break;
@@ -56,10 +56,16 @@ void print_menu_admin(menu& menus)
 			print_menu_admin_delete_class();
 			break;
 		case 5:
-			print_menu_admin_exam_create(menus);
+			print_menu_admin_student_create(menus);
 			break;
 		case 6:
-			print_menu_admin_exam_update(menus);
+			print_menu_admin_student_delete();
+			break;
+		case 7:
+			print_menu_admin_exam_create(menus);
+			break;
+		case 8:
+			print_menu_admin_score_update(menus);
 			break;
 		default:
 			print_wait("Please select an option!");
@@ -86,8 +92,6 @@ void print_menu_admin_account_create(menu& menus)
 	while (true)
 	{
 		CLEAN;
-
-		// ---------- Start ----------
 		switch (input_judgment(true, true, "Do you want to create an account? (Y/N): "))
 		{
 		case -1:
@@ -98,97 +102,49 @@ void print_menu_admin_account_create(menu& menus)
 		default:
 			break;
 		}
-
-		// ---------- Print Menu & Select Privilege ----------
 		print_menu(true, 1, menus.vector_menu_create_account, "Please set a privilege or back: ");
 		const int option = input_option(static_cast<int>(menus.vector_menu_create_account.size()));
 		switch (option)
 		{
 		case 0:
-			break;
+			break;;;
 		case 1:
 		case 2:
 		{
 			auto* student = new student_info();
-
-			// ---------- Select ----------
 			student->user_id = input(MAXSIZE_INPUT_USER_ID, true, "Please set account(user) name: ");
-			if (user_select(student->user_id)->info_flag)
+			if (user_select(student->user_id)->flag_operation)
 			{
 				print_wait("Cancelled because the user already exists!");
-				break;
+				break;;
 			}
-
-			// ---------- Input Information ----------
+			
 			student->user_password = input(MAXSIZE_INPUT_USER_PASSWORD, true, "Please set account(user) password: ");
 			student->user_privilege = option;
 			student->name = input(MAXSIZE_STUDENT_NAME, true, "Please set administrator/student true name: ");
-			while (true)
-			{
-				student->id = input(MAXSIZE_STUDENT_ID, true, "Please set it administrator/student id: ");
-				if (is_positive_integer(student->id))
-				{
-					if (!user_select(student->id, 2)->info_flag)
-					{
-						break;
-					}
-					print_wait("Cancelled because the user already exists!");
-					free_ptr(student->id, true);
-					continue;
-				}
-				free_ptr(student->id, true);
-				print_wait("Please input integer.");
-			}
-			while (true)
-			{
-				student->class_id = input(MAXSIZE_CLASS_ID, true, "Please set it administrator/student class id: ");
-				if (is_positive_integer(student->class_id))
-				{
-					break;
-				}
-				free_ptr(student->class_id, true);
-				print_wait("Please input integer.");
-			}
-			while (true)
-			{
-				std::cout << "Please set administrator/student gender (0:Female, 1:Male): ";
-				student->gender = input_option(2);
-				if (0 == student->gender || 1 == student->gender)
-				{
-					break;
-				}
-				print_wait("Please input integer.");
-			}
+			student->id = input(MAXSIZE_STUDENT_ID, true, "Please set it administrator/student id: ");
+			student->class_id = input(MAXSIZE_CLASS_ID, true, "Please set it administrator/student class id: ");
+			student->gender = strtol(input(1, true, "Please set administrator/student gender: "), nullptr, 0L);
 
-			// ---------- Reconfirm ----------
 			switch (input_judgment(true, true, "Are you sure you've filled in the information? (Y/N): "))
 			{
 			case -1:
-				free_ptr(student);
 				continue;
 			case 0:
 				print_wait("Canceled.");
-				free_ptr(student);
 				return;
 			case 1:
 			default:
 				break;
 			}
-
-			// ---------- Store Information ----------
+			
 			if (!user_store(student))
 			{
 				print_wait("Canceled because save errors!");
-				free_ptr(student);
 				return;
 			}
-
-			// ---------- Print Information ----------
 			student->print_information();
 			print_wait("Created Successfully! Press any key to back...\n", false);
-			print_log("Create User.", severity_code_info, g_vector_login_info[0]);
-
-			// ---------- Finish ----------
 			free_ptr(student);
 			return;
 		}
@@ -215,9 +171,10 @@ void print_menu_admin_account_delete()
 	while (true)
 	{
 		CLEAN;
-
-		// ---------- Start ----------
-		switch (input_judgment(true, true, "Do you want to delete user? (Y/N) "))
+		const char* user_id = input(MAXSIZE_INPUT_USER_ID, true, "Please input the User ID to be deleted: ");
+		
+		std::cout << "Are you sure you want to delete " << user_id << "? (Y/N)" << std::endl;
+		switch (input_judgment())
 		{
 		case -1:
 			continue;
@@ -228,45 +185,10 @@ void print_menu_admin_account_delete()
 			break;
 		}
 
-		const char* user_id = input(MAXSIZE_INPUT_USER_ID, true, "Please input the User ID to be deleted: ");
-
-		// ---------- Reconfirm ----------
-		std::cout << "Are you sure you want to delete \"" << user_id << "\"? (Y/N)" << std::endl;
-		switch (input_judgment())
-		{
-
-		case 0:
-			print_wait("Cancel.");
-		case -1:
-			free_ptr(user_id, true);
-			continue;
-		case 1:
-		default:
-			break;
-		}
-
-		// ---------- Select ----------
-		auto* operation = user_select(user_id);
-		if (!operation->info_flag)
-		{
-			print_wait("Cancel, the user id not exists!");
-			free_ptr(operation);
-			break;
-		}
-
-		// ---------- Delete ----------
-		operation = user_delete(operation);
-		if (!operation->info_flag)
-		{
-			print_log("Failed to delete user.", severity_code_error);
-			print_wait("Failed to delete user.");
-			break;
-		}
-
-		// ---------- Finish ----------
+		// TODO Processing Delete Account
 		std::cout << "Delete user id: " << user_id << std::endl;
 		print_wait("Delete user account Successfully!");
-		free_ptr(operation);
+		
 		free_ptr(user_id, true);
 	}
 
@@ -288,8 +210,19 @@ void print_menu_admin_create_class()
 	{
 		CLEAN;
 
-		// ---------- Start ----------
-		switch (input_judgment(true, true, "Do you want to create class? (Y/N) "))
+		const char* id_str = input(MAXSIZE_CLASS_ID, true, "Please input the id of administrative class (Digital Type): ");
+
+		if (!is_positive_integer(id_str))
+		{
+			print_wait("Please input a correct option!");
+			continue;
+		}
+
+		const char* class_admin = input(MAXSIZE_INPUT_USER_ID, true, "Please select an administrator to manage administrative class: ");
+
+		std::cout << "Are you sure you want to create class and make \"" << class_admin << "\" to manage class \"" << id_str << "\"? (Y/N)" << std::endl;
+
+		switch (input_judgment())
 		{
 		case -1:
 			continue;
@@ -300,117 +233,12 @@ void print_menu_admin_create_class()
 			break;
 		}
 
-		auto* operation = new operation_info<class_info>;
-
-		// ---------- Input Administrative Class Id ----------
-		while (true)
-		{
-			operation->info_class->class_id = input(MAXSIZE_CLASS_ID, true, "Please input the id of administrative class (Digital Type): ");
-			if (is_positive_integer(operation->info_class->class_id))
-			{
-				// ---------- Select Class Id ----------
-				if (!class_select(operation->info_class->class_id)->info_flag)
-				{
-					break;
-				}
-				print_wait("Found uniform class id, please try again. ");
-				free_ptr(operation->info_class->class_id, true);
-				continue;
-			}
-			print_wait("Please input a correct option!");
-			free_ptr(operation->info_class->class_id, true);
-		}
-
-		// ---------- Input Administrator ----------
-		while (true)
-		{
-			operation->info_class->class_admin = input(MAXSIZE_INPUT_USER_ID, true, "Please select an administrator to manage administrative class: ");
-			// ---------- Select User ----------
-			auto* student = user_select(operation->info_class->class_admin);
-			if (student->info_flag)
-			{
-				if (1 == student->info_class->user_privilege)
-				{
-					free_ptr(student);
-					break;
-				}
-				print_wait("Select user not standard privilege, please try again. ");
-				free_ptr(student);
-				free_ptr(operation->info_class->class_admin, true);
-				continue;
-			}
-			print_wait("Not found user, please try again. ");
-			free_ptr(operation->info_class->class_admin, true);
-		}
-
-		// ---------- Reconfirm Administrator ----------
-		std::cout << "Are you sure you want to create class and make \"" << operation->info_class->class_admin << "\" to manage class \"" << operation->info_class->class_id << "\"? (Y/N) ";
-		switch (input_judgment())
-		{
-		case 0:
-			print_wait("Cancel.");
-		case -1:
-			free_ptr(operation);
-			continue;
-		case 1:
-		default:
-			break;
-		}
-
-		// ---------- Input Grade ----------
-		while (true)
-		{
-			char* tmp = input(4, true, "Please input the grade: ");
-			if (is_positive_integer(tmp))
-			{
-				operation->info_class->class_grade = strtol(tmp, nullptr, 0L);
-				free_ptr(tmp);
-				break;
-			}
-			free_ptr(tmp);
-			print_wait("Invalid scanning, please input again. ");
-		}
-
-		// ---------- Input Major ----------
-		operation->info_class->class_major = input(MAXSIZE_CLASS_MAJOR, true, "Please input the major name: ");
-
-		// ---------- Input Serial Class Id ----------
-		while (true)
-		{
-			char* tmp = input(2, true, "Please serial class number: ");
-			if (is_positive_integer(tmp))
-			{
-				operation->info_class->class_number = strtol(tmp, nullptr, 0L);
-				free_ptr(tmp);
-				break;
-			}
-			free_ptr(tmp);
-			print_wait("Invalid scanning, please input again. ");
-		}
-
-		// ---------- Reconfirm ----------
-		switch (input_judgment(true, true, "Are you sure you've finished? (Y/N) "))
-		{
-		case 0:
-			print_wait("Cancel.");
-		case -1:
-			free_ptr(operation);
-			continue;
-		case 1:
-		default:
-			break;
-		}
-
-		// ---------- Store Information ----------
-		class_store(operation->info_class);
-
-		// ---------- Print Information ----------
-		operation->info_class->print_info();
+		// TODO Processing Create Class
+		std::cout << "Class Id: " << id_str << "\n" << "Class Admin: " << class_admin << std::endl;
 		print_wait("Created class Successfully!");
 
-		// ---------- Finish ----------
-		print_log("Create class.", severity_code_info);
-		free_ptr(operation);
+		free_ptr(id_str, true);
+		free_ptr(class_admin, true);
 	}
 }
 
@@ -430,8 +258,17 @@ void print_menu_admin_delete_class()
 	{
 		CLEAN;
 
-		// ---------- Start ----------
-		switch (input_judgment(true, true, "Do you want to delete class? (Y/N) "))
+		const char* id_str = input(MAXSIZE_CLASS_ID, true, "Please input the id of administrative class: ");
+
+		if (!is_positive_integer(id_str))
+		{
+			print_wait("Please input a correct option!");
+			continue;
+		}
+
+		std::cout << "Are you sure you want to delete class \"" << id_str << "\"? (Y/N)" << std::endl;
+
+		switch (input_judgment())
 		{
 		case -1:
 			continue;
@@ -442,43 +279,10 @@ void print_menu_admin_delete_class()
 			break;
 		}
 
-		auto* operation = class_select(input(MAXSIZE_CLASS_ID, true, "Please input the id of administrative class (Digital Type): "));
-
-		// ---------- Select ----------
-		if (!operation->info_flag)
-		{
-			print_wait("Cancel, the class id not exists!");
-			free_ptr(operation);
-			continue;
-		}
-		
-		// ---------- Reconfirm ----------
-		std::cout << "Are you sure you want to delete class \"" << operation->info_class->class_id << "\"? (Y/N) " << std::endl;
-		switch (input_judgment())
-		{
-		case 0:
-			print_wait("Cancelled.");
-		case -1:
-			free_ptr(operation);
-			continue;
-		case 1:
-		default:
-			break;
-		}
-
-		// ---------- Delete ----------
-		operation = class_delete(operation);
-		if (!operation->info_flag)
-		{
-			print_log("Failed to delete class.", severity_code_error);
-			print_wait("Failed to delete class.");
-			free_ptr(operation);
-			continue;
-		}
-
-		// ---------- Finish ----------
+		// TODO Processing Delete Class
 		print_wait("Deleted class Successfully!");
-		free_ptr(operation);
+
+		free_ptr(id_str, true);
 	}
 }
 
@@ -486,46 +290,21 @@ void print_menu_admin_delete_class()
 /**
  * **************************************************
  *
- * @brief according magnitude to sorted exam record of student (sort from biggest to smallest)
+ * @brief create student information
  *
- * @param front_info (exam_record_info*) front class object
- *
- * @param rear_info (exam_record_info*) rear class object
- *
- * @return bool rear < front ?
- *
- * @retval true front > rear
- *
- * @retval false front < rear
- *
- * **************************************************
- */
-bool sort_student_exam_record(exam_record_info* front_info, exam_record_info* rear_info)
-{
-	return 0 <= front_info->score_average - rear_info->score_average;
-}
-
-
-
-
-
-/**
- * **************************************************
- *
- * @brief create a comprehensive examination
+ * @param menus (const menu&) menus
  *
  * @retval None
  *
  * **************************************************
  */
-void print_menu_admin_exam_create_comprehensive_examination()
+void print_menu_admin_student_create(const menu& menus)
 {
 	while (true)
 	{
 		CLEAN;
 
-		// ---------- Start ----------
-		switch (input_judgment(true, true, "Do you want to create comprehensive examination? (Y/N) "))
+		switch (input_judgment(true, true, "Do you want to create a student information? (Y/N)"))
 		{
 		case -1:
 			continue;
@@ -536,157 +315,50 @@ void print_menu_admin_exam_create_comprehensive_examination()
 			break;
 		}
 
-		auto* operation = new operation_info<exam_info>;
+		auto* student = new student_info();
 
-		// 日期时间 (Date-time)
-		operation->info_class->date_time = input_datetime();
+		student->set_student_info(
+			strtol(input(1, true, "Please input gender of this user(0?1): "), nullptr, 0L),
+			input(MAXSIZE_CLASS_ID, true, "Please input class id of student: "),
+			input(12, true, "Please input student id: "),
+			input(12, true, "Please input student name: "),
+			input(MAXSIZE_INPUT_USER_ID, true, "Please input student Account Id: ")
+		);
 
-		// 自动添加创建者 (Creator or administrator)
-		char* tmp_admin = new char[strlen(g_vector_login_info[0]) + 1];
-		strcpy_s(tmp_admin, strlen(g_vector_login_info[0]) + 1, g_vector_login_info[0]);
-		operation->info_class->admin = tmp_admin;
-
-		// 考生人数 (Count Students)
-		while (true)
+		if (!(is_positive_integer(student->id) && is_positive_integer(student->class_id)))
 		{
-			std::string tmp = input(3, true, "Please input amount of students: ");
-			if (is_positive_integer(tmp.c_str()))
-			{
-				operation->info_class->count_student = strtol(tmp.c_str(), nullptr, 0L);
-				break;
-			}
-			print_wait("Please input correctly.");
-		}
-
-		// 应考科目数 (Count majors)
-		while (true)
-		{
-			std::string tmp = input(2, true, "Please input amounts of subject: ");
-			if (is_positive_integer(tmp.c_str()))
-			{
-				operation->info_class->count_subject = strtol(tmp.c_str(), nullptr, 0L);
-				break;
-			}
-			print_wait("Please input amounts of major.");
-		}
-
-		// 科目编号 (Major serial number)
-		for (int i = 0; i < operation->info_class->count_subject; i++)
-		{
-			std::cout << "Please set the " << i + 1 << " serial id/name of subject: ";
-			operation->info_class->vector_subject_serial_number.emplace_back(input(4));
-		}
-
-		// 考生记录 (Examination records of student)
-		for (int i = 0; i < operation->info_class->count_student; i++)
-		{
-			auto* tmp_student_exam_record = new exam_record_info;
-			while (true)
-			{
-				std::cout << "Please input the " << i + 1 << " student id: ";
-				char* input_student_id = input(MAXSIZE_STUDENT_ID);
-				auto* tmp_operation = user_select(input_student_id, 2);
-				if (tmp_operation->info_flag)
-				{
-					tmp_student_exam_record->student_name = new char[strlen(tmp_operation->info_class->name) + 1];
-					strcpy_s(tmp_student_exam_record->student_name, strlen(tmp_operation->info_class->name) + 1, tmp_operation->info_class->name);
-					tmp_student_exam_record->student_id = input_student_id;
-					tmp_student_exam_record->class_id = new char[strlen(tmp_operation->info_class->class_id) + 1];
-					strcpy_s(tmp_student_exam_record->class_id, strlen(tmp_operation->info_class->class_id) + 1, tmp_operation->info_class->class_id);
-					free_ptr(tmp_operation);
-					break;
-				}
-				print_wait("Not found user. Please try input again.");
-			}
-
-			// 循环录入每科成绩 (Recycle entry of each subject score)
-			for (int j = 0; j < operation->info_class->count_subject; j++)
-			{
-				std::cout << "Please input the score of \"" << operation->info_class->vector_subject_serial_number[j] << "\": ";
-				double tmp_score = 0;
-				while (true)
-				{
-					char* tmp = input(MAXSIZE_BUFF);
-					if (std::regex_match(tmp, std::regex("^([1-9][0-9]*)+(\\.[0-9]{1,2})?$")))
-					{
-						tmp_score = strtod(tmp, nullptr);
-						free_ptr(tmp, true);
-						break;
-					}
-					print_wait("Please input correct number!");
-				}
-				tmp_student_exam_record->score_average += tmp_score;
-				tmp_student_exam_record->vector_score_subject.emplace_back(tmp_score);
-				if (0 == i)
-				{
-					operation->info_class->vector_subject_average_score.emplace_back(tmp_score);
-				}
-				else
-				{
-					operation->info_class->vector_subject_average_score[j] += tmp_score;
-				}
-			}
-
-			if (0 != operation->info_class->count_student && 0 != operation->info_class->count_subject)
-			{
-				// 自动统计单个学生平均总分 (Calculate the average total score of each student)
-				tmp_student_exam_record->score_average /= operation->info_class->count_subject;
-
-				// 自动累加全部学生总分 (Add up the total score of all students)
-				operation->info_class->average_score += tmp_student_exam_record->score_average;
-			}
-			
-			// 存入考试记录对象 (Save the test record object)
-			operation->info_class->vector_student_exam_record.emplace_back(tmp_student_exam_record);
-		}
-
-		// 自动计算全部考生总平均成绩 (Calculate the average score of all candidates)
-		operation->info_class->average_score /= operation->info_class->count_student;
-
-		// 自动计算每科平均成绩 (Calculate the average grade of each subject)
-		for (int i = 0; i < operation->info_class->count_subject; i++)
-		{
-			operation->info_class->vector_subject_average_score[i] /= operation->info_class->count_student;
-		}
-
-		// 自动排名 (Rankings)
-		std::sort(operation->info_class->vector_student_exam_record.begin(), operation->info_class->vector_student_exam_record.end(), sort_student_exam_record);
-		for (int i = 0; i < operation->info_class->count_student; i++)
-		{
-			if (!operation->info_class->vector_student_exam_record.empty())
-			{
-				operation->info_class->vector_student_exam_record[i]->rankings = i + 1;
-			}
-		}
-		
-		// ---------- Reconfirm ----------
-		switch (input_judgment(true, true, "Are you confirm finish? (Y/N) "))
-		{
-		case 0:
-			print_wait("Cancelled.");
-		case -1:
-			return;
-		case 1:
-		default:
-			break;
-		}
-		
-
-		// ---------- Store ----------
-		if (!exam_store(operation->info_class))
-		{
-			free_ptr(operation);
-			print_wait("Save exam record failed.");
-			print_log("Failed to create exam. ", severity_code_error);
+			print_wait("Please input integer id!");
+			free_ptr(student);
 			continue;
 		}
 
-		// ---------- Finish ----------
-		CLEAN;
-		operation->info_class->print_exam();
-		free_ptr(operation);
-		print_wait("Create examination successfully!");
-		print_log("Create comprehensive examination successfully.", severity_code_info);
+		print_menu(false, 0, menus.vector_menu_select_gender);
+		while (true) {
+			std::cout << "Please select an option: ";
+			switch (input_char())
+			{
+			case '0':
+				student->gender = 0;
+				break;
+			case '1':
+				student->gender = 1;
+				break;
+			default:
+				print_wait("Please input a correct option!");
+				continue;
+			}
+			break;
+		}
+
+		// TODO Processing Student Information Create
+
+		std::cout << "Student Account Name: " << student->user_id << std::endl;
+		std::cout << "Student Password: " << student->user_password << std::endl;
+		std::cout << "Student Name: " << student->name << std::endl;
+		std::cout << "Student Class: " << student->class_id << std::endl;
+		std::cout << "Student Gender: " << (student->gender ? "Male" : "Female") << std::endl;;
+		print_wait("Operation success!");
+		free_ptr(student);
 	}
 }
 
@@ -694,17 +366,36 @@ void print_menu_admin_exam_create_comprehensive_examination()
 /**
  * **************************************************
  *
- * @brief Single subject examination, including detailed examination conditions
+ * @brief delete a student information
  *
  * @retval None
  *
  * **************************************************
  */
-void print_menu_admin_exam_create_selective_examination()
+void print_menu_admin_student_delete()
 {
-	// TODO 选择性考试类型（还没实现，其实就是单科考试的意思，涵盖了考试每个人的大题得分情况）
-	
-	print_wait("Nothing.");
+	while (true)
+	{
+		CLEAN;
+
+		switch (input_judgment(true, true, "Do you want to delete a student information? (Y/N)"))
+		{
+		case -1:
+			continue;
+		case 0:
+			return;
+		case 1:
+		default:
+			break;
+		}
+
+		const char* user_id = input(MAXSIZE_INPUT_USER_ID, true, "Please input the account Name/Id of student: ");
+
+		// TODO Processing Delete Student Info
+		print_wait("Operation success!");
+
+		free_ptr(user_id, true);
+	}
 }
 
 
@@ -725,22 +416,31 @@ void print_menu_admin_exam_create(menu& menus)
 	{
 		CLEAN;
 
-		print_menu(true, 1, menus.vector_menu_exam_type, "Please select a type of exam: ");
-		switch (input_option(static_cast<int>(menus.vector_menu_exam_type.size())))
+		switch (input_judgment(true, true, "Do you want to create new exam? (Y/N)"))
 		{
+		case -1:
+			continue;
 		case 0:
 			return;
 		case 1:
-			print_menu_admin_exam_create_comprehensive_examination();
-			return;
+		default:
+			break;
+		}
+
+		print_menu(true, 1, menus.vector_menu_exam_type, "Please select a type of exam: ");
+		switch (input_option(static_cast<int>(menus.vector_menu_exam_type.size())))
+		{
+		case 1:
+			// TODO 综合性考试类型
+			break;
 		case 2:
-			print_menu_admin_exam_create_selective_examination();
-			return;
+			// TODO 选择性考试类型
+			break;
 		default:
 			print_wait("Please select an option!");
 			break;
 		}
-
+		
 	}
 }
 
@@ -756,13 +456,12 @@ void print_menu_admin_exam_create(menu& menus)
  *
  * **************************************************
  */
-void print_menu_admin_exam_update(menu& menus)
+void print_menu_admin_score_update(menu& menus)
 {
 	while (true)
 	{
 		CLEAN;
 
-		// ---------- Start ----------
 		switch (input_judgment(true, true, "Do you want to update scores of student? (Y/N)"))
 		{
 		case -1:
@@ -774,170 +473,42 @@ void print_menu_admin_exam_update(menu& menus)
 			break;
 		}
 
-		char* student_id;
-
-		char* datetime_start;
-
-		char* datetime_end;
-
-		operation_info<exam_info*>* operation;
-		
-		while (true)
+		print_menu(true, 1, menus.vector_menu_exam_type, "Please input Student Id: ");
+		const char* student_id = input(MAXSIZE_STUDENT_ID);
+		if (!is_positive_integer(student_id))
 		{
-			// ---------- Input Student Id ----------
-			while (true)
-			{
-				student_id = input(MAXSIZE_STUDENT_ID, true, "Please input Student Id: ");
-				if (std::regex_match(student_id, std::regex("^[0-9]\\d*$")))
-				{
-					break;
-				}
-				print_wait("Illegally student id input!");
-				free_ptr(student_id, true);
-			}
-
-			// ---------- Input start datetime of exam ----------
-			while (true)
-			{
-				datetime_start = input(MAXSIZE_DATETIME_LENGTH, true, "Please input start datetime: ");
-				if (0 == strcmp(trim(datetime_start).c_str(), "all"))
-				{
-					break;
-				}
-				if (MAXSIZE_DATETIME_LENGTH == strlen(datetime_start) && std::regex_match(datetime_start, std::regex("^[1-9]\\d*$")))
-				{
-					break;
-				}
-				print_wait("Illegally start datetime input!");
-				free_ptr(datetime_start, true);
-			}
-
-			// ---------- Input end datetime of exam ----------
-			while (true)
-			{
-				datetime_end = input(MAXSIZE_DATETIME_LENGTH, true, "Please input end datetime: ");
-				if (0 == strcmp(trim(datetime_end).c_str(), "all"))
-				{
-					break;
-				}
-				if (MAXSIZE_DATETIME_LENGTH == strlen(datetime_end) && std::regex_match(datetime_end, std::regex("^[1-9]\\d*$")))
-				{
-					break;
-				}
-				print_wait("Illegally end datetime input!");
-				free_ptr(datetime_end, true);
-			}
-
-			// ---------- Select ----------
-			operation = exam_select(const_cast<const char*>(student_id), datetime_start, datetime_end);
-
-			if (!operation->info_vector_class.empty())
-			{
-				break;
-			}
-
-			free_ptr(datetime_end, true);
-			free_ptr(datetime_start, true);
+			print_wait("Illegally input!");
 			free_ptr(student_id, true);
-			free_ptr(operation);
-			std::cout << "Not found user." << std::endl;
-			
-			switch (input_judgment(true, true, "Do you want to try again? (Y/N)"))
-			{
-			case -1:
-				print_wait("Illegally input, cancelled.");
-				return;
-			case 0:
-				print_wait("Cancelled.");
-				return;
-			case 1:
-			default:
-				break;
-			}
+			continue;
 		}
-
-		// ---------- Print Old Exam ----------
-		if (1 == input_judgment(true, true, "Print out all exam? (Y/N)"))
-		{
-			for (const auto& tmp : operation->info_vector_class)
-			{
-				tmp->print_exam();
-				printf_s("\n\n");
-			}
-		}
-
-		char* subject_serial_id;
-		char* student_new_score;
+		print_menu(false, true, menus.vector_menu_exam_course, "Please select a course: ");
 		
-		while (true)
+		int student_subject = input_option(static_cast<int>(menus.vector_menu_exam_course.size()));
+		while (student_subject <= 0)
 		{
-			// ---------- Input Subject Name ----------
-			subject_serial_id = input(6, true, "Please input subject serial id: ");
-
-			// ---------- Input New Score ----------
-			
-			while (true)
-			{
-				student_new_score = input(6, true, "Please input new score: ");
-				if (std::regex_match(student_new_score, std::regex("^[0-9]+(\\.[0-9]{2})?$")))
-				{
-					break;
-				}
-				print_wait("Illegally input!");
-				free_ptr(student_new_score, true);
-			}
-
-			operation = exam_update(operation, student_id, subject_serial_id, strtod(student_new_score, nullptr));
-			if (operation->info_flag)
-			{
-				break;
-			}
-			print_wait("Not found or Cannot update score.");
-			free_ptr(student_new_score, true);
-			free_ptr(subject_serial_id, true);
+			print_wait("Please select a correct option!");
+			student_subject = input_option(static_cast<int>(menus.vector_menu_exam_course.size()));
 		}
 
-		int count_alter_success_file = 0;
-		// ---------- Store ----------
-		for (unsigned int i = 0; i < operation->info_vector_class.size(); i++)
+		// TODO 加入时间或考试批次确定查找范围，或者确定考试类型来查找
+		
+		const char* score_str = input(2, true, "Please input new score: ");
+		if (!is_positive_integer(score_str))
 		{
-			try
-			{
-				if (exam_store(operation->info_vector_class[i], operation->info_vector_path[i]))
-				{
-					count_alter_success_file++;
-				}
-			}
-			catch (...)
-			{
-				print_log("Error to save alter file.");
-			}
-
+			print_wait("Illegally input!");
+			free_ptr(student_id, true);
+			free_ptr(score_str, true);
+			continue;
 		}
+		free_ptr(score_str);
+		const int student_new_score = strtol(score_str, nullptr, 0);
 
-		// ---------- Print New Exam ----------
-		if (1 == input_judgment(true, true, "Print out all exam? (Y/N)"))
-		{
-			for (const auto& tmp : operation->info_vector_class)
-			{
-				tmp->print_exam();
-				printf_s("\n\n");
-			}
-		}
-
-		std::cout << "Student ID: " << student_id << std::endl;
-		std::cout << "Subject: " << subject_serial_id << std::endl;
+		// TODO Processing Update Student's Scores
+		std::cout << "Student Name: " << student_id << std::endl;
+		std::cout << "Subject: " << student_subject << std::endl;
 		std::cout << "New Score: " << student_new_score << std::endl;
-
-		std::cout << "All files: " << operation->info_vector_class.size() << std::endl;
-		std::cout << "Success: " << count_alter_success_file << "\t" << "Failed: " << operation->info_vector_class.size() - count_alter_success_file << std::endl;
-
+		
 		print_wait("Operation success!");
 		free_ptr(student_id, true);
-		free_ptr(student_new_score, true);
-		free_ptr(subject_serial_id, true);
-		free_ptr(datetime_start, true);
-		free_ptr(datetime_end, true);
-		free_ptr(operation);
 	}
 }

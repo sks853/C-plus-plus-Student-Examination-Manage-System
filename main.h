@@ -35,27 +35,18 @@
 /*-------------------- Import User Lib --------------------*/
 
 #include "menu.h"
+#include "manage_admin.h"
+#include "student_information.h"
+#include "template_free_pointer.h"
 #include "format_input.h"
 #include "format_print.h"
 #include "process_file.h"
-
-#include "manage_admin.h"
-#include "manage_standard.h"
-#include "manage_read.h"
-
-#include "student_info.h"
-#include "class_info.h"
-#include "exam_info.h"
-#include "exam_record_info.h"
-
-#include "template_free_pointer.h"
-#include "template_operation_info.h"
 
 
 /*-------------------- User Macro Definition --------------------*/
 
 // ¿ìËÙÇåÆÁ
-#define CLEAN					system("cls")
+#define CLEAN							system("cls")
 
 
 /*-------------------- User/External Values --------------------*/

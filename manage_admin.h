@@ -42,7 +42,6 @@
   */
 void print_menu_admin(menu& menus);
 
-
  /**
   * **************************************************
   *
@@ -56,7 +55,6 @@ void print_menu_admin(menu& menus);
   */
 void print_menu_admin_account_create(menu& menus);
 
-
 /**
  * **************************************************
  *
@@ -67,7 +65,6 @@ void print_menu_admin_account_create(menu& menus);
  * **************************************************
  */
 void print_menu_admin_account_delete();
-
 
 /**
  * **************************************************
@@ -80,7 +77,6 @@ void print_menu_admin_account_delete();
  */
 void print_menu_admin_create_class();
 
-
 /**
  * **************************************************
  *
@@ -92,30 +88,29 @@ void print_menu_admin_create_class();
  */
 void print_menu_admin_delete_class();
 
-
 /**
  * **************************************************
  *
- * @brief create a comprehensive examination
+ * @brief create student information
+ *
+ * @param menus (const menu&) menus
  *
  * @retval None
  *
  * **************************************************
  */
-void print_menu_admin_exam_create_comprehensive_examination();
-
+void print_menu_admin_student_create(const menu& menus);
 
 /**
  * **************************************************
  *
- * @brief Single subject examination, including detailed examination conditions
+ * @brief delete a student information
  *
  * @retval None
  *
  * **************************************************
  */
-void print_menu_admin_exam_create_selective_examination();
-
+void print_menu_admin_student_delete();
 
 /**
  * **************************************************
@@ -130,7 +125,6 @@ void print_menu_admin_exam_create_selective_examination();
  */
 void print_menu_admin_exam_create(menu& menus);
 
-
 /**
  * **************************************************
  *
@@ -142,6 +136,6 @@ void print_menu_admin_exam_create(menu& menus);
  *
  * **************************************************
  */
-void print_menu_admin_exam_update(menu& menus);
+void print_menu_admin_score_update(menu& menus);
 
 #endif

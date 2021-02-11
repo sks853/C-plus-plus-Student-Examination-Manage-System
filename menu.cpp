@@ -23,125 +23,9 @@
 /**
  * **************************************************
  *
- * @brief Standard 用户界面
- *
- * @details login >> standard
- *
- * **************************************************
- */
-const char* menu_standard_main[] = {
-		"0. Exit",							// 退出
-		"1. Student Information Manage",	// 学生信息管理
-		"2. Examination Manage"				// 考试信息管理
-};
-
-
-/**
- * **************************************************
- *
- * @brief Standard 用户界面下的学生信息管理菜单
- *
- * @details login >> standard >> Student Information Manage
- *
- * **************************************************
- */
-const char* menu_standard_mange_student[] = {
-		"0. Back",							// 返回
-		"1. Alter Student ID",				// 更改学生学号
-		"2. Alter Student Class",			// 更改学生班级号
-};
-
-
-/**
- * **************************************************
- *
- * @brief Standard 用户界面下的考试信息管理菜单
- *
- * @details login >> standard >> Examination Manage
- *
- * **************************************************
- */
-const char* menu_standard_mange_exam[] = {
-		"0. Back",							// 返回
-		"1. Statistics Examination",		// 统计考试信息
-		"2. Alter Examination"				// 更改考试信息
-};
-
-
-/**
- * **************************************************
- *
- * @brief Only-Read 用户界面
- *
- * @details login >> read-only
- *
- * **************************************************
- */
-const char* menu_read_main[] = {
-		"0. Exit",							// 退出
-		"1. Personal Information Manage",	// 个人信息管理
-		"2. Statistics Examination"			// 统计考试情况
-};
-
-
-/**
- * **************************************************
- *
- * @brief Only-Read 下的查看个人信息默认出现
- *
- * @details login >> read-only >> Personal Information Manage
- *
- * **************************************************
- */
-const char* menu_read_info_manage_tip[] = {
-		"User Name: ",						// 用户名
-		"User Password: ",					// 密码
-		"Privilege: ",						// 权限
-		"Name: ",							// 姓名
-		"ID: ",								// 学号
-		"Class ID: ",						// 行政班级号
-		"Gender: "							// 性别
-};
-
-
-/**
- * **************************************************
- *
- * @brief Only-Read 下选择修改的个人信息
- *
- * @details login >> read-only >> Personal Information Manage
- *
- * **************************************************
- */
-const char* menu_read_info_manage_alter[] = {
-		"0. Back",							// 返回
-		"1. Alter User Name",				// 用户名
-		"2. Alter User Password",			// 密码
-};
-
-
-/**
- * **************************************************
- *
- * @brief Only-Read 下查询当前账号下的全部或部分成绩
- *
- * @details login >> read-only >> Statistics Examination
- *
- * **************************************************
- */
-const char* menu_read_exam_statistics[] = {
-		"0. Back",
-		"1. Statistics All Examination",
-		"2. Statistics Examination According Datetime",
-};
-
-
-/**
- * **************************************************
- *
  * @brief Administrator界面
  *
- * @details login >> admin
+ * @details login >> admin >> Create account
  *
  * **************************************************
  */
@@ -151,8 +35,10 @@ const char* menu_admin_main[] = {
 		"2. Delete Account",				// 删除用户
 		"3. Create Administrative Class",	// 新建行政班级
 		"4. Delete Administrative Class",	// 删除行政班级
-		"5. Create New Exam",				// 新建考试
-		"6. Alter Exam Score"				// 更新成绩
+		"5. Create Student Information",	// 新建学生信息
+		"6. Delete Student Information",	// 删除学生信息
+		"7. Create New Exam",				// 新建考试
+		"8. Alter Exam Score"				// 更新成绩
 };
 
 
@@ -180,7 +66,6 @@ const char* menu_create_account[] = {
  * **************************************************
  */
 const char* menu_exam_type[] = {
-	"0. Back",								// 返回
 	"1. Comprehensive Examination",			// 综合性考试
 	"2. Selective Examination"				// 选择性考试
 };
@@ -189,15 +74,15 @@ const char* menu_exam_type[] = {
 /**
  * **************************************************
  *
- * @brief 科目选择菜单（可用于单科考试）
+ * @brief 科目选择菜单
  *
  * **************************************************
  */
 const char* menu_exam_course[] = {
-	"1. Subject 1",							// 科目一
-	"2. Subject 2",							// 科目二
-	"3. Subject 3",							// 科目三
-	"4. Subject 4"							// 科目四
+	"1. Subject 1",
+	"2. Subject 2",
+	"3. Subject 3",
+	"4. Subject 4"
 };
 
 
@@ -228,48 +113,6 @@ const char* menu_select_gender[] = {
 menu::menu()
 {
 	/*---------------------------------------- Menus ----------------------------------------*/
-
-	// login >> standard
-	for (const char* ele : menu_standard_main)
-	{
-		vector_standard_main.push_back(ele);
-	}
-
-	// login >> standard >> Student Information Manage
-	for (const char* ele : menu_standard_mange_student)
-	{
-		vector_standard_manage_student.push_back(ele);
-	}
-
-	// login >> standard >> Examination Manage
-	for (const char* ele : menu_standard_mange_exam)
-	{
-		vector_standard_manage_exam.push_back(ele);
-	}
-	
-	// login >> only_read
-	for (const char* ele : menu_read_main)
-	{
-		vector_read_main.push_back(ele);
-	}
-
-	// login >> only_read >> Personal Information Manage
-	for (const char* ele : menu_read_info_manage_tip)
-	{
-		vector_read_info_manage_tip.push_back(ele);
-	}
-
-	// login >> only_read >> Personal Information Manage
-	for (const char* ele : menu_read_info_manage_alter)
-	{
-		vector_read_info_manage_alter.push_back(ele);
-	}
-
-	// login >> only_read >> Examination According
-	for (const char* ele : menu_read_exam_statistics)
-	{
-		vector_read_exam_statistics.push_back(ele);
-	}
 	
 	// login >> admin
 	for (const char* ele : menu_admin_main)
@@ -289,13 +132,11 @@ menu::menu()
 		vector_menu_select_gender.push_back(ele);
 	}
 
-	// login >> admin >> Create student information
 	for (const char* ele : menu_exam_type)
 	{
 		vector_menu_exam_type.push_back(ele);
 	}
 
-	// login >> admin >> Create student information
 	for (const char* ele : menu_exam_course)
 	{
 		vector_menu_exam_course.push_back(ele);

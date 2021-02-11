@@ -3,7 +3,7 @@
  *
  * @coding UTF-8
  *
- * @file template_free_pointer.h
+ * @file free_pointer.h
  *
  * @author HDM
  *
@@ -47,6 +47,7 @@ void free_ptr(T* p, const bool is_array = false)
 		delete p;
 		p = nullptr;
 	}
+
 }
 
 #endif

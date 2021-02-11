@@ -97,16 +97,4 @@ int input_judgment(bool is_print_hint = false, bool is_default_error = true, ...
  */
 int input_option(int max_option_length);
 
-
-/**
- * **************************************************
- *
- * @brief 输入日期时间（包括年月日时分），不做闰年处理
- *
- * @return char* 年月日时分的日期字符数组指针
- *
- * **************************************************
- */
-char* input_datetime();
-
 #endif
