@@ -186,7 +186,6 @@ void print_menu_admin_account_create(menu& menus)
 			// ---------- Print Information ----------
 			student->print_information();
 			print_wait("Created Successfully! Press any key to back...\n", false);
-			print_log("Create User.", severity_code_info, g_vector_login_info[0]);
 
 			// ---------- Finish ----------
 			free_ptr(student);

@@ -519,16 +519,9 @@ operation_info<student_info>* user_delete(operation_info<student_info>* operatio
 		}
 		f.close();
 		f.open(operation->info_path, std::ios::out | std::ios::trunc | std::ios::binary);
-		for (auto tmp : tmp_vector_line)
+		for (const auto& tmp : tmp_vector_line)
 		{
-			int index = static_cast<int>(tmp.length()) - 1;
-			while ((tmp[index] == '\r' || tmp[index] == '\n') && 0 < index)
-			{
-				tmp[index] = '\0';
-				index--;
-			}
-			
-			f << tmp << "\n";
+			f << tmp << "\r\n";
 		}
 		f.close();
 		operation->info_flag = true;
@@ -1249,16 +1242,17 @@ bool exam_store(const exam_info* info, char* path)
 						std::cout << "None" << std::endl;
 						continue;;
 					}
-					const unsigned int length = static_cast<const unsigned int>(idx_tail) - static_cast<const unsigned int>(idx_head) - 4;
+					const unsigned int length = idx_tail - idx_head - 4;
 					tmp_vector_index.emplace_back(strtol(tmp_trim_path.substr(idx_head + 5, length - 1).c_str(), nullptr, 0L));
 					
 				}
 				if (!tmp_vector_index.empty())
 				{
 					std::sort(tmp_vector_index.begin(), tmp_vector_index.end(), std::less<>());
+					//tmp_path[strlen(tmp_path) - 1 - 4] = static_cast<char>((tmp_vector_index[tmp_vector_index.size() - 1] + 1) + '0');
 					const std::string::size_type idx_head = tmp_path.find("exam_");
 					const std::string::size_type idx_tail = tmp_path.find(".csv");
-					const unsigned int length = static_cast<const unsigned int>(idx_tail) - static_cast<const unsigned int>(idx_head) - 4;
+					const unsigned int length = idx_tail - idx_head - 4;
 					char tmp_digits[255];
 					sprintf_s(tmp_digits, sizeof(tmp_digits), "%d", tmp_vector_index[tmp_vector_index.size() - 1] + 1);
 					tmp_path.replace(idx_head + 5, length - 1, tmp_digits);

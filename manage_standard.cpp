@@ -58,17 +58,6 @@ void print_menu_standard_main(menu& menus)
 }
 
 
-/**
- * **************************************************
- *
- * @brief manage student information
- *
- * @param menus (menu&) menus
- *
- * @retval None
- *
- * **************************************************
- */
 void print_menu_standard_mange_student(menu& menus)
 {
 	while (true)
@@ -76,10 +65,6 @@ void print_menu_standard_mange_student(menu& menus)
 		CLEAN;
 		print_menu(false, 1, menus.vector_standard_manage_student, "Please select an option: ");
 		const int option = input_option(static_cast<int>(menus.vector_standard_manage_student.size()));
-		if (0 == option)
-		{
-			return;
-		}
 		
 		char* student_id = input(MAXSIZE_STUDENT_ID, true, "Please input student id: ");
 		char* new_id;
@@ -88,6 +73,8 @@ void print_menu_standard_mange_student(menu& menus)
 		
 		switch (option)
 		{
+		case 0:
+			return;
 		case 1:
 			update_value = 4;
 			new_id = input(MAXSIZE_STUDENT_ID, true, "Please input new student id: ");
@@ -125,17 +112,6 @@ void print_menu_standard_mange_student(menu& menus)
 }
 
 
-/**
- * **************************************************
- *
- * @brief manage student exam records
- *
- * @param menus (menu&) menus
- *
- * @retval None
- *
- * **************************************************
- */
 void print_menu_standard_mange_exam(menu& menus)
 {
 	while (true)
@@ -198,7 +174,7 @@ void print_menu_standard_mange_exam(menu& menus)
 				exam_record->info_vector_class[index_exam]->print_exam();
 				printf_s("\n");
 				
-				std::cout << "Page " << index_exam + 1 << std::endl;
+				std::cout << "Page " << index_exam << std::endl;
 				std::cout << "Please press <- or -> to turn page, and press ESC to exit." << std::endl;
 				int show = _getch();
 				if (224 == show || 0 == show)
