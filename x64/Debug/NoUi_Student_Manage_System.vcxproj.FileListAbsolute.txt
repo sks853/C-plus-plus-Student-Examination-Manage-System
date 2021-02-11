@@ -1,0 +1,2 @@
+C:\Users\THDMI\source\repos\C-plus-plus-Student-Examination-Manage-System\x64\Debug\NoUi_Student_Manage_System.exe
+C:\Users\THDMI\source\repos\C-plus-plus-Student-Examination-Manage-System\x64\Debug\NoUi_Student_Manage_System.pdb

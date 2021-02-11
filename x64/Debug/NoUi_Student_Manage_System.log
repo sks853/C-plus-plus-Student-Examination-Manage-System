@@ -1,0 +1,14 @@
+﻿  class_info.cpp
+  exam_info.cpp
+  exam_record_info.cpp
+  format_input.cpp
+  format_print.cpp
+  main.cpp
+  manage_admin.cpp
+  manage_read.cpp
+  manage_standard.cpp
+  menu.cpp
+  process_file.cpp
+  student_info.cpp
+  正在生成代码...
+  NoUi_Student_Manage_System.vcxproj -> C:\Users\THDMI\source\repos\C-plus-plus-Student-Examination-Manage-System\x64\Debug\NoUi_Student_Manage_System.exe
